@@ -29,10 +29,10 @@ def show_off():
 
 def need_help():
     c.print("\n[blue][*] Available commands:[/]")
-    c.print("[yellow]Command      Description[/]")
-    c.print("[red]--------     -----------[/]")
+    c.print("[yellow]Command      Description                 Arguments[/]")
+    c.print("[red]--------     -----------                 ------------[/]")
     print("help         Help menu")
-    print("use          Interact with a module")
+    print("use          Interact with a module      <#> | <name>")
     print("show         Displays all modules")
     print("version      Show the version")
     print("clear        Clear the screen")
@@ -60,7 +60,7 @@ def main():
                     try:
                         gimme_this(petai_prompt[1].lower())
                     except IndexError:
-                        print("ArgumentError: must have an arguments")
+                        c.print("[red]ArgumentError:[/] must have an arguments")
                 case "show":
                     can_i_c()
                 case "help":
@@ -72,12 +72,13 @@ def main():
                         _ = system('cls')
                     else:
                         _ = system('clear')
-                case "exit":
+                case "exit" | "quit":
                     sys.exit(0)
-                case "": # press enter the prompt went down. Down there!?
+                case "": 
+                    # press enter the prompt went down. Down there!?
                     continue
                 case _:
-                    c.print(f"[!] Unknown command: [red]{petai_prompt[0]}[/]")
+                    c.print(f"[red]Error[/]: unknown command")
         except KeyboardInterrupt:
             c.print(" [red]Interrupt:[/] use the 'exit' command to quit")
             continue

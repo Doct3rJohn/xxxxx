@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-# version: 0.1 | 10/8/2022
+# date: 10/8/2022
 
 # import from python module (std)
 from os import system, name
-import time
+import sys
+import requests
 
 # import from pyhton module (nstd)
 from rich.console import Console
@@ -17,11 +18,12 @@ def need_help():
     print("options      Displays the module option")
     print("help         Help menu")
     print("clear        Clear the screen")
-    print("exit         Go to the main menu\n")
+    print("exit         Go to the main menu")
+    print("quit         Quit\n")
 
 def option4what():
     print("")
-    c.print("Module options ([green]osint/modules/fakemsg[/]):")
+    c.print("[blue][*] Module options:[/]")
     c.print("[yellow] Name            Required    Description[/]")
     c.print("[red] --------        --------    --------------------------------------------------------[/]")
     print(" NUMBER          yes         The target phone number, must use the [country code]")
@@ -41,49 +43,62 @@ def sit_up(string, values):
     global num
     global msg
     global key
-    key = None
 
     match string.lower():
         case "number":
             num = values
-            print(f"Number -> {num[0]}")
 
             # error handling:
             # looking for spaces/empty at the start/first arguments
             if not num[0]:
-                c.print("[red]SpacesError:[/] first arguments cannot be spaces")           
+                c.print("[red]SpacesError:[/] first arguments cannot be spaces")
+            else:
+                print(f"NUMBER -> {num[0]}")          
+ 
         case "message":
             msg = list2string(values)
-            print(f"Message -> {msg}")
 
             # error handling:
             # looking for spaces/empty at the start/first arguments
             gather_list = list(msg)
             chosen_1 = gather_list[0]
             if chosen_1 == ' ':
-                c.print("[red]SpacesError:[/] first arguments cannot be spaces")             
+                c.print("[red]SpacesError:[/] first arguments cannot be spaces")
+            else:
+                print(f"MESSAGE -> {msg}")
+
         case "key":
             key = values
-            print(f"Key -> {key[0]}")
 
             # error handling:
             # looking for spaces/empty at the start/first arguments
             if not key[0]:
-                c.print("[red]SpacesError:[/] first arguments cannot be spaces")            
+                c.print("[red]SpacesError:[/] first arguments cannot be spaces")  
+            else:            
+                print(f"KEY -> {key[0]}")
 
-def run(number, message, key="default"):
-    c.print("[blue][*] Running the modules...[/]")
-    time.sleep(1)
-    c.print("[blue][*] Compiling the message...[/]")
-    time.sleep(1)
-    c.print(f"[blue][*] Send the message over '{list2string(number)}'[/]")
-    print(f"{number}, {message}, {key}")
+def run(number, message, key=string2list("textbelt")):
+    SUCCESS = b'"success":true'
+    FAILED = b'"success":false'
+
+    c.print("[blue][*][/] Running the modules...")
+    c.print("[blue][*][/] Compiling the message...")
+    c.print(f"[blue][*][/] Send the message over '{list2string(number)}'")
+
+    # where the request handling
+    data = {'phone':f'{list2string(number)}', 'message':f'{message}', 'key':f'{list2string(key)}'}
+    resp = requests.post("https://textbelt.com/text", data=data)
+    if SUCCESS in resp.content:
+        c.print("[green][+][/] Module execution completed")
+    elif FAILED in resp.content:
+        c.print("[red][!][/] Cannot execute the modules > quotaRemaining:0")
+    else:
+        c.print("[red]Error:[/] something went wrong")
 
 # Seriously, I need help!
 def fakemsg():
     while True:
         try:
-            #petai_prompt = c.input("[underline]petai([green]osint/modules/fakemsg[/][/]) > ")
             petai_prompt = c.input("[underline]petai[/] ([green]osint/modules/fakemsg[/]) > ")
             petai_prompt = string2list(petai_prompt)
 
@@ -113,16 +128,18 @@ def fakemsg():
                         _ = system('clear')
                 case "exit":
                     break
+                case "quit":
+                    sys.exit(0)
                 case "":
                     continue
                 case _:
-                    c.print(f"[!] Unknown command: [red]{petai_prompt[0]}[/]")
+                    c.print(f"[red]Error[/]: unknown command")
         except IndexError:
             c.print("[red]ArgumentError:[/] must have an arguments")
         except NameError:
             c.print("[red]Error:[/] something went wrong")
         except KeyboardInterrupt:
-            c.print(" [red]Interrupt:[/] use the 'exit' command to quit")
+            c.print(" [red]Interrupt:[/] use 'exit' to go the main menu, use 'quit' to quit")
             continue
 
 if __name__ == "__main__":
