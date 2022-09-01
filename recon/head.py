@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# Date: 10/8/2022
-# Credit: @whoami4041 [https://github.com/machine1337/fake-sms]
+# date: 12/8/2022
 
 # import from python module (std)
 from os import system, name
@@ -15,7 +14,7 @@ def need_help():
     c.print("\n[blue][*] Available commands:[/]")
     c.print("[yellow]Command      Description                     Arguments[/]")
     c.print("[red]--------     ---------------------------     ------------------------[/]")
-    print("set          Set the values                  <number> <message> <key>")
+    print("set          Set the values                  <target> <port>")
     print("options      Displays the module option")
     print("help         Help menu")
     print("clear        Clear the screen")
@@ -27,9 +26,8 @@ def option4what():
     c.print("[blue][*] Module options:[/]")
     c.print("[yellow] Name            Required    Description[/]")
     c.print("[red] --------        --------    --------------------------------------------------------[/]")
-    print(" NUMBER          yes         The target phone number, must use the [country code]")
-    print(" MESSAGE         yes         The message that be send to the target")
-    print(" KEY             no          The [default]:key, let you send one message per day. However, you can buy it here: https://textbelt.com/\n")
+    print(" TARGET          yes         The URL of the target")
+    print(" PORT            yes         The port of the target host\n")
 
 # Convert string into list
 def string2list(string):
@@ -41,67 +39,42 @@ def list2string(list):
 
 # Setting up values into variable
 def sit_up(string, values):
-    global num
-    global msg
-    global key
-    key = None
+    global target
+    global port
+    port = None
 
     match string.lower():
-        case "number":
-            num = values
+        case "target":
+            target = values
 
             # error handling:
             # looking for spaces/empty at the start/first arguments
-            if not num[0]:
+            if not target[0]:
                 c.print("[red]SpacesError:[/] first arguments cannot be spaces")
             else:
-                print(f"NUMBER -> {num[0]}")          
- 
-        case "message":
-            msg = list2string(values)
+                print(f"TARGET -> {target[0]}")          
+
+        case "port":
+            port = list2string(values)
 
             # error handling:
             # looking for spaces/empty at the start/first arguments
-            gather_list = list(msg)
-            chosen_1 = gather_list[0]
-            if chosen_1 == ' ':
-                c.print("[red]SpacesError:[/] first arguments cannot be spaces")
-            else:
-                print(f"MESSAGE -> {msg}")
-
-        case "key":
-            key = values
-
-            # error handling:
-            # looking for spaces/empty at the start/first arguments
-            if not key[0]:
+            if not port[0]:
                 c.print("[red]SpacesError:[/] first arguments cannot be spaces")  
             else:            
-                print(f"KEY -> {key[0]}")
+                print(f"PORT -> {[port][0]}")
 
-def run(number, message, key=string2list("textbelt")):
-    SUCCESS = b'"success":true'
-    FAILED = b'"success":false'
-
-    c.print("[blue][*][/] Running the modules...")
-    c.print("[blue][*][/] Compiling the message...")
-    c.print(f"[blue][*][/] Send the message over '{list2string(number)}'")
-
-    # where the request handling
-    data = {'phone':f'{list2string(number)}', 'message':f'{message}', 'key':f'{list2string(key)}'}
-    resp = requests.post("https://textbelt.com/text", data=data)
-    if SUCCESS in resp.content:
-        c.print("[green][+][/] Module execution completed")
-    elif FAILED in resp.content:
-        c.print("[red][!][/] Cannot execute the modules > quotaRemaining:0")
-    else:
-        c.print("[red]Error:[/] something went wrong")
+def run(target, port="80"):
+    req = requests.head(f"{list2string(target)}:{port}")
+    resp = req.headers
+    for key, value in resp.items():
+        print(f"{key}: {value}")
 
 # Seriously, I need help!
-def fakemsg():
+def head_header():
     while True:
         try:
-            petai_prompt = c.input("[underline]petai[/] ([green]osint/modules/fakemsg[/]) > ")
+            petai_prompt = c.input("[underline]petai[/] ([green]recon/modules/header[/]) > ")
             petai_prompt = string2list(petai_prompt)
 
             # error handling:
@@ -113,10 +86,10 @@ def fakemsg():
                 case "set":
                     sit_up(petai_prompt[1], petai_prompt[2:])
                 case "run":
-                    if key != None:
-                        run(num, msg, key)
+                    if port != None:
+                        run(target, port)
                     else:
-                        run(num, msg)
+                        run(target)
                 case "options":
                     # run the options[function]
                     # but it is electric static
@@ -145,4 +118,5 @@ def fakemsg():
             continue
 
 if __name__ == "__main__":
-    fakemsg()
+    head_header()
+
